@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Онлайн Трансляция WebRTC</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        background-color: #0d1117;
+        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      }
+      .player-container {
+        width: 100%;
+        max-width: 800px;
+        padding: 20px;
+        box-sizing: border-box;
+      }
+      .video-wrapper {
+        position: relative;
+        padding-top: 56.25%;
+        background-color: #000;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      }
+      video {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        outline: none;
+      }
+      h1 {
+        font-size: 1.8rem;
+        margin-bottom: 5px;
+        text-align: center;
+      }
+      .status {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-bottom: 20px;
+        font-size: 0.9rem;
+        color: #8b949e;
+      }
+      .badge-live {
+        background-color: #da3633;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        font-size: 0.75rem;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="player-container">
+      <h1>Прямой эфир (WebRTC)</h1>
+      <div class="status">
+        <span class="badge-live">LIVE</span>
+        <span id="stream-status">Подключение...</span>
+      </div>
+
+      <div class="video-wrapper">
+        <video id="video" controls autoplay muted playsinline></video>
+      </div>
+    </div>
+
+    <script>
+      const STREAM_NAME = "live/stream1_webrtc";
+
+      // Ссылка на WHEP-клиент MediaMTX через наш SSL-прокси Nginx
+      const whepUrl = `${window.location.protocol}//${window.location.host}/webrtc/${STREAM_NAME}/whep`;
+
+      const video = document.getElementById("video");
+      const statusText = document.getElementById("stream-status");
+      let peerConnection = null;
+
+      async function startWebRTC() {
+        if (peerConnection) {
+          peerConnection.close();
+        }
+
+        statusText.textContent = "Подключение...";
+
+        // Создаем стандартное WebRTC соединение
+        peerConnection = new RTCPeerConnection({
+          iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+        });
+
+        // Настраиваем прием медиапотоков
+        peerConnection.addTransceiver("video", { direction: "recvonly" });
+        peerConnection.addTransceiver("audio", { direction: "recvonly" });
+
+        peerConnection.ontrack = (event) => {
+          if (video.srcObject !== event.streams[0]) {
+            video.srcObject = event.streams[0];
+            statusText.textContent = "Трансляция активна";
+          }
+        };
+
+        try {
+          // Создаем локальный оффер
+          const offer = await peerConnection.createOffer();
+          await peerConnection.setLocalDescription(offer);
+
+          // Отправляем оффер на MediaMTX через прокси
+          const response = await fetch(whepUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/sdp" },
+            body: offer.sdp,
+          });
+
+          if (!response.ok) {
+            throw new Error("Стрим не найден на сервере");
+          }
+
+          const answerSdp = await response.text();
+          await peerConnection.setRemoteDescription(
+            new RTCSessionDescription({
+              type: "answer",
+              sdp: answerSdp,
+            }),
+          );
+        } catch (error) {
+          console.error(error);
+          statusText.textContent = "Стрим не активен. Повтор через 5 сек...";
+          setTimeout(startWebRTC, 5000);
+        }
+      }
+
+      window.addEventListener("DOMContentLoaded", startWebRTC);
+    </script>
+  </body>
+</html>
