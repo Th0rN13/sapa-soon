@@ -39,18 +39,24 @@ video {
   height: 100%;
   outline: none;
 }
-h1 {
-  font-size: 1.8rem;
-  margin: 0 0 5px 0;
-  text-align: center;
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+.header-row h1 {
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 600;
 }
 .status {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin-bottom: 20px;
-  font-size: 0.9rem;
+  gap: 6px;
+  font-size: 0.8rem;
   color: #8b949e;
 }
 .badge-live {
