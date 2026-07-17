@@ -1,109 +1,17 @@
 <!DOCTYPE html>
-
-<html class="light" lang="ru"><head>
+<html class="light" lang="ru">
+<head>
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
 <title>Sapa TV | Скоро</title>
-<!-- Fonts -->
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@700;800;900&amp;display=swap" rel="stylesheet"/>
-<!-- Material Symbols -->
 <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<!-- Tailwind CSS -->
 <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<script id="tailwind-config">
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            "colors": {
-                    "on-tertiary": "#ffeff0",
-                    "surface-container": "#cfecff",
-                    "surface-container-lowest": "#ffffff",
-                    "primary-fixed-dim": "#00c0ea",
-                    "tertiary": "#b60051",
-                    "tertiary-dim": "#a00047",
-                    "secondary-dim": "#5819db",
-                    "outline-variant": "#87b3cd",
-                    "inverse-surface": "#001019",
-                    "outline": "#507c94",
-                    "surface-bright": "#eff8ff",
-                    "on-tertiary-fixed-variant": "#770033",
-                    "inverse-on-surface": "#77a3bc",
-                    "secondary": "#652fe7",
-                    "on-secondary": "#f7f0ff",
-                    "on-surface-variant": "#346178",
-                    "primary-container": "#00cffc",
-                    "on-error-container": "#570008",
-                    "surface-tint": "#00647b",
-                    "surface-container-high": "#c2e8ff",
-                    "tertiary-container": "#ff8fa9",
-                    "primary": "#00647b",
-                    "on-secondary-fixed": "#3b00a0",
-                    "tertiary-fixed": "#ff8fa9",
-                    "surface-container-highest": "#b5e3ff",
-                    "on-background": "#003346",
-                    "on-secondary-container": "#5000d2",
-                    "on-error": "#ffefee",
-                    "on-primary-fixed-variant": "#004a5c",
-                    "surface-container-low": "#e2f3ff",
-                    "background": "#eff8ff",
-                    "on-primary": "#e2f6ff",
-                    "on-primary-container": "#004050",
-                    "on-surface": "#003346",
-                    "surface-dim": "#9fdcff",
-                    "error": "#b31b25",
-                    "surface-variant": "#b5e3ff",
-                    "surface": "#eff8ff",
-                    "inverse-primary": "#00cffc",
-                    "on-tertiary-container": "#66002b",
-                    "primary-dim": "#00576c",
-                    "secondary-fixed-dim": "#cabaff",
-                    "error-dim": "#9f0519",
-                    "tertiary-fixed-dim": "#ff769b",
-                    "on-primary-fixed": "#002a35",
-                    "on-secondary-fixed-variant": "#591bdc",
-                    "secondary-fixed": "#d8caff",
-                    "on-tertiary-fixed": "#380014",
-                    "primary-fixed": "#00cffc",
-                    "error-container": "#fb5151",
-                    "secondary-container": "#d8caff"
-            },
-            "borderRadius": {
-                    "DEFAULT": "1rem",
-                    "lg": "2rem",
-                    "xl": "3rem",
-                    "full": "9999px"
-            },
-            "spacing": {},
-            "fontFamily": {
-                    "headline": ["Manrope"],
-                    "body": ["Inter"],
-                    "label": ["Inter"]
-            }
-          },
-        },
-      }
-    </script>
-<style>
-        .material-symbols-outlined {
-            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-        }
-        h1, h2, h3 {
-            font-family: 'Manrope', sans-serif;
-        }
-        .glass-effect {
-            background: rgba(239, 248, 255, 0.4);
-            backdrop-filter: blur(20px);
-        }
-    </style>
+<link rel="stylesheet" href="index.css" />
 </head>
 <body class="bg-surface text-on-surface selection:bg-primary-container selection:text-on-primary-container min-h-screen flex flex-col overflow-x-hidden">
-<!-- TopNavBar -->
 <nav class="fixed top-0 w-full glass-effect z-50">
 <div class="flex justify-between items-center px-8 py-6 w-full max-w-screen-2xl mx-auto">
 <div class="text-2xl font-black text-[#003346] tracking-tighter">
@@ -111,19 +19,15 @@
         </div>
 </div>
 </nav>
-<!-- Main Content -->
 <main class="flex-grow flex flex-col items-center justify-center px-6 py-24 relative pt-20">
-<!-- Clean Ethereal Accents -->
 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] sm:w-[500px] sm:h-[500px] md:w-[800px] md:h-[800px] bg-gradient-to-tr from-primary-container/20 to-surface-container/20 rounded-full blur-[120px] -z-10"></div>
 <section class="max-w-2xl w-full text-center flex flex-col items-center gap-10">
-<!-- Character Asset -->
 <div class="relative inline-block group">
 <div class="absolute inset-0 bg-primary-container/10 rounded-full blur-3xl group-hover:bg-primary-container/20 transition-all duration-1000"></div>
 <div class="relative bg-white/40 p-2 rounded-2xl shadow-xl backdrop-blur-sm border border-white/50">
 <img alt="Персонаж Sapa TV" class="w-56 sm:w-80 md:w-96 h-auto rounded-xl object-cover" src="avatar.png"/>
 </div>
 </div>
-<!-- Site Identity & Message -->
 <div class="space-y-6">
 <div class="space-y-1">
 <h1 class="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter text-on-background leading-none">
@@ -133,7 +37,6 @@
 <p class="text-on-surface-variant/80 text-lg md:text-xl max-w-md mx-auto font-medium leading-relaxed">
                 Скоро открытие.
             </p>
-<!-- Streaming Buttons -->
 <div class="flex flex-col items-center gap-4 w-full max-w-xs mx-auto">
 <a class="inline-flex items-center justify-center gap-3 bg-[#9146FF] text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-sm sm:text-base shadow-lg hover:bg-[#772ce8] active:scale-95 transition-all w-full" href="https://www.twitch.tv/sapushka_" target="_blank">
             <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -157,4 +60,6 @@
 </div>
 </section>
 </main>
-</body></html>
+<script src="index.js"></script>
+</body>
+</html>
