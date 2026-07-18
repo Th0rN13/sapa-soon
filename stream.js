@@ -1,58 +1,34 @@
-const STREAM_NAME = "live/stream1-webrtc";
-
-const whepUrl = `${window.location.protocol}//${window.location.host}/webrtc/${STREAM_NAME}/whep`;
+const HLS_STREAM_URL = "/live/stream1/index.m3u8";
 
 const video = document.getElementById("video");
 const statusText = document.getElementById("stream-status");
-let peerConnection = null;
 
-async function startWebRTC() {
-  if (peerConnection) {
-    peerConnection.close();
-  }
-
-  statusText.textContent = "Подключение...";
-
-  peerConnection = new RTCPeerConnection({
-    iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
-  });
-
-  peerConnection.addTransceiver("video", { direction: "recvonly" });
-  peerConnection.addTransceiver("audio", { direction: "recvonly" });
-
-  peerConnection.ontrack = (event) => {
-    if (video.srcObject !== event.streams[0]) {
-      video.srcObject = event.streams[0];
+function startHLS() {
+  if (video.canPlayType("application/vnd.apple.mpegurl")) {
+    video.src = HLS_STREAM_URL;
+    video.addEventListener("loadedmetadata", () => {
       statusText.textContent = "Трансляция активна";
-    }
-  };
-
-  try {
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-
-    const response = await fetch(whepUrl, {
-      method: "POST",
-      headers: { "Content-Type": "application/sdp" },
-      body: offer.sdp,
     });
-
-    if (!response.ok) {
-      throw new Error("Стрим не найден на сервере");
-    }
-
-    const answerSdp = await response.text();
-    await peerConnection.setRemoteDescription(
-      new RTCSessionDescription({
-        type: "answer",
-        sdp: answerSdp,
-      }),
-    );
-  } catch (error) {
-    console.error(error);
-    statusText.textContent = "Стрим не активен. Повтор через 5 сек...";
-    setTimeout(startWebRTC, 5000);
+    video.addEventListener("error", () => {
+      statusText.textContent = "Ошибка воспроизведения";
+    });
+  } else if (Hls.isSupported()) {
+    const hls = new Hls();
+    hls.loadSource(HLS_STREAM_URL);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      statusText.textContent = "Трансляция активна";
+    });
+    hls.on(Hls.Events.ERROR, (event, data) => {
+      if (data.fatal) {
+        statusText.textContent = "Ошибка: перезапуск...";
+        hls.destroy();
+        setTimeout(startHLS, 5000);
+      }
+    });
+  } else {
+    statusText.textContent = "HLS не поддерживается";
   }
 }
 
-window.addEventListener("DOMContentLoaded", startWebRTC);
+window.addEventListener("DOMContentLoaded", startHLS);
