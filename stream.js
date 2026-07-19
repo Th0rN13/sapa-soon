@@ -13,7 +13,16 @@ function startHLS() {
       statusText.textContent = "Ошибка воспроизведения";
     });
   } else if (Hls.isSupported()) {
-    const hls = new Hls();
+    const hls = new Hls({
+      enableWorker: true,
+      lowLatencyMode: true,
+
+      liveSyncDurationCount: 3,
+      liveMaxLatencyDurationCount: 5,
+      maxBufferLength: 10,
+      maxMaxBufferLength: 20
+    }
+    );
     hls.loadSource(HLS_STREAM_URL);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
