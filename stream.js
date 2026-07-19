@@ -16,13 +16,20 @@ function startHLS() {
     const hls = new Hls({
       enableWorker: true,
       lowLatencyMode: true,
-
-      liveSyncDurationCount: 3,
-      liveMaxLatencyDurationCount: 5,
-      maxBufferLength: 10,
-      maxMaxBufferLength: 20
-    }
-    );
+      liveSyncDuration: 3.5,
+      liveMaxLatencyDuration: 6,
+      liveDurationInfinity: true,
+      highBufferWatchdogPeriod: 2,
+      maxBufferHoleExtension: 0.5,
+      nudgeMaxRetry: 5,
+      nudgeOffset: 0.1,
+      manifestLoadingTimeOut: 10000,
+      manifestLoadingMaxRetry: 4,
+      levelLoadingTimeOut: 10000,
+      levelLoadingMaxRetry: 4,
+      fragLoadingTimeOut: 20000,
+      fragLoadingMaxRetry: 6
+    });
     hls.loadSource(HLS_STREAM_URL);
     hls.attachMedia(video);
     hls.on(Hls.Events.MANIFEST_PARSED, () => {
