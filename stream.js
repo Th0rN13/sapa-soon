@@ -1,50 +1,86 @@
-const HLS_STREAM_URL = "/live/stream1/index.m3u8";
+const STREAM_URL = "/live/stream1/index.m3u8";
 
 const video = document.getElementById("video");
 const statusText = document.getElementById("stream-status");
 
-function startHLS() {
-  if (video.canPlayType("application/vnd.apple.mpegurl")) {
-    video.src = HLS_STREAM_URL;
-    video.addEventListener("loadedmetadata", () => {
-      statusText.textContent = "Трансляция активна";
-    });
-    video.addEventListener("error", () => {
-      statusText.textContent = "Ошибка воспроизведения";
-    });
-  } else if (Hls.isSupported()) {
-    const hls = new Hls({
-      enableWorker: true,
-      lowLatencyMode: true,
-      liveSyncDuration: 3.5,
-      liveMaxLatencyDuration: 6,
-      liveDurationInfinity: true,
-      highBufferWatchdogPeriod: 2,
-      maxBufferHoleExtension: 0.5,
-      nudgeMaxRetry: 5,
-      nudgeOffset: 0.1,
-      manifestLoadingTimeOut: 10000,
-      manifestLoadingMaxRetry: 4,
-      levelLoadingTimeOut: 10000,
-      levelLoadingMaxRetry: 4,
-      fragLoadingTimeOut: 20000,
-      fragLoadingMaxRetry: 6
-    });
-    hls.loadSource(HLS_STREAM_URL);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      statusText.textContent = "Трансляция активна";
-    });
-    hls.on(Hls.Events.ERROR, (event, data) => {
-      if (data.fatal) {
-        statusText.textContent = "Ошибка: перезапуск...";
-        hls.destroy();
-        setTimeout(startHLS, 5000);
+async function startPlayer() {
+  shaka.polyfill.installAll();
+
+  if (!shaka.Player.isBrowserSupported()) {
+    statusText.textContent = "Плеер не поддерживается";
+    return;
+  }
+
+  const player = new shaka.Player();
+
+  player.configure({
+    manifest: {
+      retryParameters: {
+        timeout: 30000,
+        stallTimeout: 10000,
+        connectionTimeout: 15000,
+        maxAttempts: 10,
+        baseDelay: 500,
+        backoffFactor: 2,
+        fuzzFactor: 0.5
       }
-    });
-  } else {
-    statusText.textContent = "HLS не поддерживается";
+    },
+    streaming: {
+      retryParameters: {
+        timeout: 45000,
+        stallTimeout: 10000,
+        connectionTimeout: 15000,
+        maxAttempts: 10,
+        baseDelay: 500,
+        backoffFactor: 2,
+        fuzzFactor: 0.5
+      },
+      bufferingGoal: 60,
+      rebufferingGoal: 20,
+      bufferBehind: 60,
+      segmentPrefetchLimit: 3,
+      liveSync: {
+        enabled: true,
+        targetLatency: 5,
+        maxLatency: 20
+      },
+      inaccurateManifestTolerance: 2,
+      updateIntervalSeconds: 1,
+      stallEnabled: true,
+      stallThreshold: 0.5
+    },
+    drm: {
+      retryParameters: {
+        timeout: 30000,
+        maxAttempts: 10,
+        baseDelay: 500,
+        backoffFactor: 2
+      }
+    }
+  });
+
+  player.addEventListener("error", (event) => {
+    const error = event.detail;
+    if (error.severity === shaka.util.Error.Severity.CRITICAL) {
+      statusText.textContent = "Ошибка: перезапуск...";
+      player.destroy();
+      setTimeout(startPlayer, 5000);
+    }
+  });
+
+  try {
+    await player.attach(video);
+    await player.load(STREAM_URL);
+    statusText.textContent = "Трансляция активна";
+  } catch (e) {
+    if (e.code && e.severity === shaka.util.Error.Severity.CRITICAL) {
+      statusText.textContent = "Ошибка: перезапуск...";
+      player.destroy();
+      setTimeout(startPlayer, 5000);
+    } else {
+      statusText.textContent = "Ошибка воспроизведения";
+    }
   }
 }
 
-window.addEventListener("DOMContentLoaded", startHLS);
+window.addEventListener("DOMContentLoaded", startPlayer);
