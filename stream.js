@@ -26,6 +26,7 @@ async function startPlayer() {
       }
     },
     streaming: {
+      lowLatency: false,
       retryParameters: {
         timeout: 45000,
         stallTimeout: 10000,
@@ -35,9 +36,7 @@ async function startPlayer() {
         backoffFactor: 2,
         fuzzFactor: 0.5
       },
-      bufferingGoal: 60,
-      rebufferingGoal: 20,
-      bufferBehind: 60,
+      rebufferingGoal: 5,
       segmentPrefetchLimit: 3,
       liveSync: {
         enabled: true,
