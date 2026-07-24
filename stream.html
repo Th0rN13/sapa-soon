@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Онлайн Трансляция</title>
     <link rel="stylesheet" href="stream.css" />
-    <script src="https://cdn.jsdelivr.net/npm/shaka-player@4/dist/shaka-player.compiled.min.js"></script>
+    <script src="js/shaka-player.compiled.min.js"></script>
   </head>
   <body>
     <div class="main">
@@ -23,7 +23,11 @@
     </div>
 
     <div class="chat-sidebar">
-      <iframe src="https://www.twitch.tv/embed/sapushka_/chat?parent=sapa-tv.ru&amp;darkpopout" allowfullscreen sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"></iframe>
+      <iframe
+        src="https://www.twitch.tv/embed/sapushka_/chat?parent=sapa-tv.ru&amp;darkpopout"
+        allowfullscreen
+        sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
+      ></iframe>
     </div>
 
     <script src="stream.js"></script>
