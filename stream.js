@@ -1,39 +1,51 @@
 const video = document.getElementById("video");
-const statusText = document.getElementById("stream-status");
-const whepUrl = 'http://195.19.7.36:8889/live/stream/whep';
+const videoEl = document.getElementById('video');
+// const statusText = document.getElementById("stream-status");
+const whepUrl = 'https://sapa-tv.ru/whep/live/stream/whep';
 
 async function startPlayer() {
-  shaka.polyfill.installAll();
 
-  if (!shaka.Player.isBrowserSupported()) {
-    statusText.textContent = "Плеер не поддерживается";
-    return;
+  async function startWhep() {
+    try {
+      const pc = new RTCPeerConnection({
+        iceServers: []
+      });
+
+      pc.addTransceiver('video', { direction: 'recvonly' });
+      pc.addTransceiver('audio', { direction: 'recvonly' });
+
+      pc.ontrack = (event) => {
+        if (videoEl.srcObject !== event.streams[0]) {
+          videoEl.srcObject = event.streams[0];
+          console.log('WHEP Поток успешно получен!');
+        }
+      };
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+
+      const response = await fetch(whepUrl, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/sdp' },
+        body: offer.sdp
+      });
+
+      if (!response.ok) {
+        throw new Error(`MediaMTX ответил ошибкой: ${response.status}`);
+      }
+
+      const answerSdp = await response.text();
+      await pc.setRemoteDescription({
+        type: 'answer',
+        sdp: answerSdp
+      });
+
+    } catch (err) {
+      console.error('Ошибка при запуске WHEP плеера:', err);
+    }
   }
 
-  const player = new shaka.Player();
-
-  player.addEventListener("error", (event) => {
-    const error = event.detail;
-    if (error.severity === shaka.util.Error.Severity.CRITICAL) {
-      statusText.textContent = "Ошибка: перезапуск...";
-      player.destroy();
-      setTimeout(startPlayer, 5000);
-    }
-  });
-
-  try {
-    await player.attach(video);
-    await player.load(whepUrl, null, 'application/sdp');
-    statusText.textContent = "Трансляция активна";
-  } catch (e) {
-    if (e.code && e.severity === shaka.util.Error.Severity.CRITICAL) {
-      statusText.textContent = "Ошибка: перезапуск...";
-      player.destroy();
-      setTimeout(startPlayer, 5000);
-    } else {
-      statusText.textContent = "Ошибка воспроизведения";
-    }
-  }
+  startWhep();
 }
 
 window.addEventListener("DOMContentLoaded", startPlayer);
