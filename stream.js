@@ -1,10 +1,9 @@
-const video = document.getElementById("video");
 const videoEl = document.getElementById('video');
-// const statusText = document.getElementById("stream-status");
 const whepUrl = 'https://sapa-tv.ru/whep/live/stream/whep';
 
-async function startPlayer() {
+const FORCE_TCP = true;
 
+async function startPlayer() {
   async function startWhep() {
     try {
       const pc = new RTCPeerConnection({
@@ -24,10 +23,33 @@ async function startPlayer() {
       const offer = await pc.createOffer();
       await pc.setLocalDescription(offer);
 
+      await new Promise((resolve) => {
+        if (pc.iceGatheringState === 'complete') {
+          resolve();
+        } else {
+          const checkState = () => {
+            if (pc.iceGatheringState === 'complete') {
+              pc.removeEventListener('icegatheringstatechange', checkState);
+              resolve();
+            }
+          };
+          pc.addEventListener('icegatheringstatechange', checkState);
+        }
+      });
+
+      let localSdp = pc.localDescription.sdp;
+
+      if (FORCE_TCP) {
+        localSdp = localSdp
+          .split('\r\n')
+          .filter(line => !line.startsWith('a=candidate:') || line.includes('tcptype'))
+          .join('\r\n');
+      }
+
       const response = await fetch(whepUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/sdp' },
-        body: offer.sdp
+        body: localSdp
       });
 
       if (!response.ok) {
