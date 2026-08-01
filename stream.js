@@ -1,68 +1,35 @@
-const videoEl = document.getElementById('video');
-const whepUrl = 'https://sapa-tv.ru/whep/live/stream/whep';
+const whepUrl = 'https://sapa-tv.ru/rtc/v1/whep/?app=live&stream=stream1';
+const videoElem = document.getElementById('remoteVideo');
 
-async function startPlayer() {
-  async function startWhep() {
-    try {
-      const pc = new RTCPeerConnection({
-        iceServers: []
-      });
+async function startWhep() {
 
-      pc.addTransceiver('video', { direction: 'recvonly' });
-      pc.addTransceiver('audio', { direction: 'recvonly' });
+  const pc = new RTCPeerConnection();
 
-      pc.ontrack = (event) => {
-        if (videoEl.srcObject !== event.streams[0]) {
-          videoEl.srcObject = event.streams[0];
-          console.log('WHEP Поток успешно получен!');
-        }
-      };
+  pc.addTransceiver('video', { direction: 'recvonly' });
+  pc.addTransceiver('audio', { direction: 'recvonly' });
 
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-
-      await new Promise((resolve) => {
-        if (pc.iceGatheringState === 'complete') {
-          resolve();
-        } else {
-          const checkState = () => {
-            if (pc.iceGatheringState === 'complete') {
-              pc.removeEventListener('icegatheringstatechange', checkState);
-              resolve();
-            }
-          };
-          pc.addEventListener('icegatheringstatechange', checkState);
-        }
-      });
-
-      const response = await fetch(whepUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/sdp' },
-        body: pc.localDescription.sdp
-      });
-
-      if (!response.ok) {
-        throw new Error(`MediaMTX ответил ошибкой: ${response.status}`);
-      }
-
-      let answerSdp = await response.text();
-
-      answerSdp = answerSdp
-        .split('\r\n')
-        .filter(line => !line.startsWith('a=candidate:') || line.includes('tcptype'))
-        .join('\r\n');
-
-      await pc.setRemoteDescription({
-        type: 'answer',
-        sdp: answerSdp
-      });
-
-    } catch (err) {
-      console.error('Ошибка при запуске WHEP плеера:', err);
+  pc.ontrack = (event) => {
+    if (videoElem.srcObject !== event.streams[0]) {
+      videoElem.srcObject = event.streams[0];
     }
+  };
+
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+
+  const response = await fetch(whepUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/sdp' },
+    body: offer.sdp
+  });
+
+  if (!response.ok) {
+    console.error('Ошибка WHEP:', response.status);
+    return;
   }
 
-  startWhep();
+  const answerSdp = await response.text();
+  await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
 }
 
-window.addEventListener("DOMContentLoaded", startPlayer);
+window.addEventListener("DOMContentLoaded", startWhep);
