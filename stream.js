@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', async () => {
-  const videoElem = document.getElementById('remoteVideo');
+  const videoElem = document.getElementById('video');
   const statusElem = document.getElementById('status');
 
   const whepUrl = 'https://sapa-tv.ru/rtc/v1/whep/?app=live&stream=stream1';
