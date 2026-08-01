@@ -1,8 +1,6 @@
 const videoEl = document.getElementById('video');
 const whepUrl = 'https://sapa-tv.ru/whep/live/stream/whep';
 
-const FORCE_TCP = true;
-
 async function startPlayer() {
   async function startWhep() {
     try {
@@ -37,26 +35,23 @@ async function startPlayer() {
         }
       });
 
-      let localSdp = pc.localDescription.sdp;
-
-      if (FORCE_TCP) {
-        localSdp = localSdp
-          .split('\r\n')
-          .filter(line => !line.startsWith('a=candidate:') || line.includes('tcptype'))
-          .join('\r\n');
-      }
-
       const response = await fetch(whepUrl, {
         method: 'POST',
         headers: { 'Content-Type': 'application/sdp' },
-        body: localSdp
+        body: pc.localDescription.sdp
       });
 
       if (!response.ok) {
         throw new Error(`MediaMTX ответил ошибкой: ${response.status}`);
       }
 
-      const answerSdp = await response.text();
+      let answerSdp = await response.text();
+
+      answerSdp = answerSdp
+        .split('\r\n')
+        .filter(line => !line.startsWith('a=candidate:') || line.includes('tcptype'))
+        .join('\r\n');
+
       await pc.setRemoteDescription({
         type: 'answer',
         sdp: answerSdp
