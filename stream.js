@@ -1,44 +1,57 @@
-async function startWhep() {
-  const whepUrl = 'https://sapa-tv.ru/rtc/v1/whep/?app=live&stream=stream1';
+document.addEventListener('DOMContentLoaded', async () => {
   const videoElem = document.getElementById('remoteVideo');
+  const statusElem = document.getElementById('status');
 
-  // Обязательно указываем rtcpMuxPolicy: 'require'
-  const pc = new RTCPeerConnection({
-    rtcpMuxPolicy: 'require'
-  });
+  const whepUrl = 'https://sapa-tv.ru/rtc/v1/whep/?app=live&stream=stream1';
 
-  pc.addTransceiver('video', { direction: 'recvonly' });
-  pc.addTransceiver('audio', { direction: 'recvonly' });
+  try {
+    const pc = new RTCPeerConnection({
+      rtcpMuxPolicy: 'require'
+    });
 
-  pc.ontrack = (event) => {
-    if (videoElem.srcObject !== event.streams[0]) {
-      videoElem.srcObject = event.streams[0];
+    pc.addTransceiver('video', { direction: 'recvonly' });
+    pc.addTransceiver('audio', { direction: 'recvonly' });
+
+    pc.ontrack = (event) => {
+      if (videoElem && event.streams && event.streams[0]) {
+        videoElem.srcObject = event.streams[0];
+        statusElem.innerText = 'Трансляция подключена!';
+      }
+    };
+
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+
+    await new Promise((resolve) => {
+      if (pc.iceGatheringState === 'complete') {
+        resolve();
+      } else {
+        const checkState = () => {
+          if (pc.iceGatheringState === 'complete') {
+            pc.removeEventListener('icegatheringstatechange', checkState);
+            resolve();
+          }
+        };
+        pc.addEventListener('icegatheringstatechange', checkState);
+        setTimeout(resolve, 1000);
+      }
+    });
+
+    const response = await fetch(whepUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/sdp' },
+      body: pc.localDescription.sdp
+    });
+
+    if (!response.ok) {
+      throw new Error(`SRS вернул код: ${response.status}`);
     }
-  };
 
-  let offer = await pc.createOffer();
+    const answerSdp = await response.text();
+    await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
 
-  // Подстраховка: если браузер не добавил a=rtcp-mux в секции m=video/m=audio
-  let sdp = offer.sdp;
-  if (!sdp.includes('a=rtcp-mux')) {
-    sdp = sdp.replace(/(m=(video|audio) .*\r\n)/g, '$1a=rtcp-mux\r\n');
+  } catch (err) {
+    console.error(err);
+    statusElem.innerText = 'Ошибка: ' + err.message;
   }
-
-  await pc.setLocalDescription({ type: 'offer', sdp: sdp });
-
-  const response = await fetch(whepUrl, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/sdp' },
-    body: sdp
-  });
-
-  if (!response.ok) {
-    console.error('Ошибка WHEP:', response.status);
-    return;
-  }
-
-  const answerSdp = await response.text();
-  await pc.setRemoteDescription({ type: 'answer', sdp: answerSdp });
-}
-
-startWhep();
+});
