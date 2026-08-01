@@ -1,7 +1,6 @@
-const STREAM_URL = "/live/stream1/index.m3u8";
-
 const video = document.getElementById("video");
 const statusText = document.getElementById("stream-status");
+const whepUrl = 'http://195.19.7.36:8889/live/stream/whep';
 
 async function startPlayer() {
   shaka.polyfill.installAll();
@@ -12,51 +11,6 @@ async function startPlayer() {
   }
 
   const player = new shaka.Player();
-
-  player.configure({
-    manifest: {
-      retryParameters: {
-        timeout: 30000,
-        stallTimeout: 10000,
-        connectionTimeout: 15000,
-        maxAttempts: 10,
-        baseDelay: 500,
-        backoffFactor: 2,
-        fuzzFactor: 0.5
-      }
-    },
-    streaming: {
-      lowLatency: false,
-      retryParameters: {
-        timeout: 45000,
-        stallTimeout: 10000,
-        connectionTimeout: 15000,
-        maxAttempts: 10,
-        baseDelay: 500,
-        backoffFactor: 2,
-        fuzzFactor: 0.5
-      },
-      rebufferingGoal: 5,
-      segmentPrefetchLimit: 3,
-      liveSync: {
-        enabled: true,
-        targetLatency: 5,
-        maxLatency: 20
-      },
-      inaccurateManifestTolerance: 2,
-      updateIntervalSeconds: 1,
-      stallEnabled: true,
-      stallThreshold: 0.5
-    },
-    drm: {
-      retryParameters: {
-        timeout: 30000,
-        maxAttempts: 10,
-        baseDelay: 500,
-        backoffFactor: 2
-      }
-    }
-  });
 
   player.addEventListener("error", (event) => {
     const error = event.detail;
@@ -69,7 +23,7 @@ async function startPlayer() {
 
   try {
     await player.attach(video);
-    await player.load(STREAM_URL);
+    await player.load(whepUrl, null, 'application/sdp');
     statusText.textContent = "Трансляция активна";
   } catch (e) {
     if (e.code && e.severity === shaka.util.Error.Severity.CRITICAL) {
