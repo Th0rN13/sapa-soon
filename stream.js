@@ -21,18 +21,11 @@ async function startPlayer() {
   }
 }
 
-function initChatTabs() {
-  const tabs = document.querySelectorAll('.chat-tab');
-  const panels = document.querySelectorAll('.chat-panel iframe');
+document.addEventListener('DOMContentLoaded', () => {
+  startPlayer();
 
-  tabs.forEach(tab => {
-    tab.addEventListener('click', () => {
-      tabs.forEach(t => t.classList.toggle('active', t === tab));
-      const name = tab.dataset.chat;
-      panels.forEach(p => p.classList.toggle('active', p.dataset.chatPanel === name));
-    });
+  const vkBtn = document.getElementById('vk-chat-btn');
+  vkBtn.addEventListener('click', () => {
+    window.open('https://live.vkvideo.ru/sapushka_/stream/default/only-chat', '_blank');
   });
-}
-
-document.addEventListener('DOMContentLoaded', startPlayer);
-document.addEventListener('DOMContentLoaded', initChatTabs);
+});

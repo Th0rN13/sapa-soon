@@ -29,23 +29,13 @@
     </div>
 
     <div class="chat-sidebar">
-      <div class="chat-tabs" role="tablist">
-        <button class="chat-tab active" data-chat="twitch" type="button">
-          Twitch
-        </button>
-        <button class="chat-tab" data-chat="vk" type="button">VK Video</button>
-      </div>
+      <button class="chat-vk-btn" id="vk-chat-btn" type="button">
+        💬 VK чат
+      </button>
       <div class="chat-panel">
         <iframe
-          data-chat-panel="twitch"
           class="active"
           src="https://www.twitch.tv/embed/sapushka_/chat?parent=sapa-tv.ru&amp;darkpopout"
-          allowfullscreen
-          sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
-        ></iframe>
-        <iframe
-          data-chat-panel="vk"
-          src="https://live.vkvideo.ru/sapushka_/stream/default/only-chat"
           allowfullscreen
           sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
         ></iframe>
