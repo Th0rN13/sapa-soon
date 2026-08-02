@@ -3,18 +3,17 @@ const statusElem = document.getElementById('status');
 
 async function startPlayer() {
   if (typeof mpegts !== 'undefined' && mpegts.isSupported()) {
-    const videoElement = document.getElementById('videoElement'); // Проверь ID своего <video>
 
     const player = mpegts.createPlayer({
       type: 'flv',
       isLive: true,
-      url: 'https://sapa-tv.ru/live/stream1.flv' // Твой URL FLV-потока
+      url: 'https://sapa-tv.ru/live/stream1.flv'
     }, {
-      enableStashBuffer: false, // Отключает буферизацию для минимальной задержки (~1 сек)
-      liveBufferLatencyChasing: true // Автоматически подтягивает отстающий поток
+      enableStashBuffer: false,
+      liveBufferLatencyChasing: true
     });
 
-    player.attachMediaElement(videoElement);
+    player.attachMediaElement(videoElem);
     player.load();
     player.play().catch(e => console.log("Autoplay blocked:", e));
   } else {
