@@ -21,4 +21,18 @@ async function startPlayer() {
   }
 }
 
+function initChatTabs() {
+  const tabs = document.querySelectorAll('.chat-tab');
+  const panels = document.querySelectorAll('.chat-panel iframe');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      tabs.forEach(t => t.classList.toggle('active', t === tab));
+      const name = tab.dataset.chat;
+      panels.forEach(p => p.classList.toggle('active', p.dataset.chatPanel === name));
+    });
+  });
+}
+
 document.addEventListener('DOMContentLoaded', startPlayer);
+document.addEventListener('DOMContentLoaded', initChatTabs);

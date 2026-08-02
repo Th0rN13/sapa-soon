@@ -11,9 +11,15 @@
     <div class="main">
       <div class="player-container">
         <div class="header-row">
-          <h1>Прямой эфир</h1>
-          <span class="badge-live">LIVE</span>
-          <span id="stream-status">Подключение...</span>
+          <div class="header-row__left">
+            <h1>Стримы Сапушки</h1>
+            <span class="badge-live">LIVE</span>
+            <span id="stream-status"></span>
+          </div>
+          <div class="header-row__links">
+            <a href="https://sapushka.oda.digital/">💰 На поддержку сервера</a>
+            <a href="https://sapushka.oda.digital/">🍖 Торну на еду</a>
+          </div>
         </div>
 
         <div class="video-wrapper">
@@ -21,14 +27,29 @@
         </div>
       </div>
     </div>
-    <!-- 
+
     <div class="chat-sidebar">
-      <iframe
-        src="https://www.twitch.tv/embed/sapushka_/chat?parent=sapa-tv.ru&amp;darkpopout"
-        allowfullscreen
-        sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
-      ></iframe>
-    </div> -->
+      <div class="chat-tabs" role="tablist">
+        <button class="chat-tab active" data-chat="twitch" type="button">
+          Twitch
+        </button>
+        <button class="chat-tab" data-chat="vk" type="button">VK Video</button>
+      </div>
+      <div class="chat-panel">
+        <iframe
+          data-chat-panel="twitch"
+          src="https://www.twitch.tv/embed/sapushka_/chat?parent=sapa-tv.ru&amp;darkpopout"
+          allowfullscreen
+          sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
+        ></iframe>
+        <iframe
+          data-chat-panel="vk"
+          src="https://live.vkvideo.ru/sapushka_/stream/default/only-chat"
+          allowfullscreen
+          sandbox="allow-modals allow-scripts allow-same-origin allow-popups allow-popups-to-escape-sandbox allow-forms"
+        ></iframe>
+      </div>
+    </div>
 
     <script src="stream.js"></script>
   </body>
